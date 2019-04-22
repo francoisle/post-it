@@ -4,16 +4,17 @@
  *
  */
 
-import React, { Component } from "react";
+import React, {Component} from "react";
 import {
   StyleSheet,
   Text,
   TouchableOpacity,
   Vibration,
+  ScrollView,
   View
 } from "react-native";
 
-import { RNCamera } from "react-native-camera";
+import {RNCamera} from "react-native-camera";
 
 import {
   hasWriteExternalStoragePermission,
@@ -21,13 +22,28 @@ import {
   savePicture
 } from "./src/Utils";
 
+import {renderTextBlocks} from "./src/Renderers";
+
 export default class App extends Component {
   constructor() {
     super();
 
     this.state = {
       imageUri: null,
-      analyseText: false
+      isAnalyzing: false,
+      textBlocks: [
+        {value: "I am Adonis"},
+        {value: "I am Adonis"},
+        {value: "I am Adonis"},
+        {value: "I am Adonis"},
+        {value: "I am Adonis"},
+        {value: "I am Adonis"},
+        {value: "I am Adonis"},
+        {value: "I am Adonis"},
+        {value: "I am Adonis"},
+        {value: "I am Adonis"},
+        {value: "I am Adonis"}
+      ]
     };
 
     this.takePicture = this.takePicture.bind(this);
@@ -37,7 +53,7 @@ export default class App extends Component {
 
   async takePicture() {
     if (this.camera) {
-      const options = { quality: 0.5, base64: true, skipProcessing: true };
+      const options = {quality: 0.5, base64: true, skipProcessing: true};
       const data = await this.camera.takePictureAsync(options);
       this.state.imageUri = data.uri;
 
@@ -56,28 +72,36 @@ export default class App extends Component {
   }
 
   handleTextRecognized(textRecognizedEvent) {
-    const { analyseText } = this.state;
-    if (!analyseText) {
+    const {isAnalyzing} = this.state;
+    if (!isAnalyzing) {
       return;
     }
 
-    Vibration.vibrate(400);
-    console.log(
-      "textRecognizedEvent.textBlocks",
-      textRecognizedEvent.textBlocks
-    );
-    this.stopTextAnalyze();
+    if (textRecognizedEvent.textBlocks.length > 0) {
+      Vibration.vibrate(400);
+      console.log(
+        "textRecognizedEvent.textBlocks",
+        textRecognizedEvent.textBlocks
+      );
+
+      console.log("data", textRecognizedEvent.textBlocks);
+
+      this.setState({textBlocks: textRecognizedEvent.textBlocks});
+      this.stopTextAnalyze();
+    }
   }
 
   startTextAnalyze() {
-    this.setState({ analyseText: true });
+    this.setState({isAnalyzing: true});
   }
 
   stopTextAnalyze() {
-    this.setState({ analyseText: false });
+    this.setState({isAnalyzing: false});
   }
 
   render() {
+    const {textBlocks, isAnalyzing} = this.state;
+
     return (
       <View style={styles.container}>
         <RNCamera
@@ -97,6 +121,13 @@ export default class App extends Component {
           }}
           onTextRecognized={this.handleTextRecognized}
         />
+        <ScrollView
+          style={styles.resultContainer}
+          alwaysBounceVertical={true}
+          contentContainerStyle={styles.resultContainerStyle}
+        >
+          {textBlocks && textBlocks.map(t => t.value).map(renderTextBlocks)}
+        </ScrollView>
         <View
           style={{
             flex: 0,
@@ -105,13 +136,15 @@ export default class App extends Component {
           }}
         >
           <TouchableOpacity onPress={this.takePicture} style={styles.capture}>
-            <Text style={{ fontSize: 14 }}> Take a photo ! </Text>
+            <Text style={{fontSize: 14}}> Take a photo ! </Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={this.startTextAnalyze}
             style={styles.capture}
           >
-            <Text style={{ fontSize: 14 }}> Analyze Text ! </Text>
+            <Text style={{fontSize: 14}}>
+              {isAnalyzing ? "Looking for text..." : "Read Text !"}{" "}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -138,5 +171,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     alignSelf: "center",
     margin: 20
+  },
+  resultContainer: {
+    maxHeight: 160,
+    height: 100,
+    backgroundColor: "white",
+    color: "black",
+    paddingLeft: 30
+  },
+  resultContainerStyle: {
+    paddingTop: 15,
+    paddingLeft: 25,
+    paddingBottom: 15
   }
 });
