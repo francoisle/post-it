@@ -4,7 +4,7 @@
  *
  */
 
-import React, {Component} from "react";
+import React, { Component } from "react";
 import {
   StyleSheet,
   Text,
@@ -14,7 +14,7 @@ import {
   View
 } from "react-native";
 
-import {RNCamera} from "react-native-camera";
+import { RNCamera } from "react-native-camera";
 
 import {
   hasWriteExternalStoragePermission,
@@ -22,7 +22,7 @@ import {
   savePicture
 } from "./src/Utils";
 
-import {renderTextBlocks} from "./src/Renderers";
+import { renderTextBlocks } from "./src/Renderers";
 
 export default class App extends Component {
   constructor() {
@@ -31,19 +31,7 @@ export default class App extends Component {
     this.state = {
       imageUri: null,
       isAnalyzing: false,
-      textBlocks: [
-        {value: "I am Adonis"},
-        {value: "I am Adonis"},
-        {value: "I am Adonis"},
-        {value: "I am Adonis"},
-        {value: "I am Adonis"},
-        {value: "I am Adonis"},
-        {value: "I am Adonis"},
-        {value: "I am Adonis"},
-        {value: "I am Adonis"},
-        {value: "I am Adonis"},
-        {value: "I am Adonis"}
-      ]
+      textBlocks: []
     };
 
     this.takePicture = this.takePicture.bind(this);
@@ -53,7 +41,7 @@ export default class App extends Component {
 
   async takePicture() {
     if (this.camera) {
-      const options = {quality: 0.5, base64: true, skipProcessing: true};
+      const options = { quality: 0.5, base64: true, skipProcessing: true };
       const data = await this.camera.takePictureAsync(options);
       this.state.imageUri = data.uri;
 
@@ -72,7 +60,7 @@ export default class App extends Component {
   }
 
   handleTextRecognized(textRecognizedEvent) {
-    const {isAnalyzing} = this.state;
+    const { isAnalyzing } = this.state;
     if (!isAnalyzing) {
       return;
     }
@@ -86,21 +74,21 @@ export default class App extends Component {
 
       console.log("data", textRecognizedEvent.textBlocks);
 
-      this.setState({textBlocks: textRecognizedEvent.textBlocks});
+      this.setState({ textBlocks: textRecognizedEvent.textBlocks });
       this.stopTextAnalyze();
     }
   }
 
   startTextAnalyze() {
-    this.setState({isAnalyzing: true});
+    this.setState({ isAnalyzing: true });
   }
 
   stopTextAnalyze() {
-    this.setState({isAnalyzing: false});
+    this.setState({ isAnalyzing: false });
   }
 
   render() {
-    const {textBlocks, isAnalyzing} = this.state;
+    const { textBlocks, isAnalyzing } = this.state;
 
     return (
       <View style={styles.container}>
@@ -136,13 +124,13 @@ export default class App extends Component {
           }}
         >
           <TouchableOpacity onPress={this.takePicture} style={styles.capture}>
-            <Text style={{fontSize: 14}}> Take a photo ! </Text>
+            <Text style={{ fontSize: 14 }}> Take a photo ! </Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={this.startTextAnalyze}
             style={styles.capture}
           >
-            <Text style={{fontSize: 14}}>
+            <Text style={{ fontSize: 14 }}>
               {isAnalyzing ? "Looking for text..." : "Read Text !"}{" "}
             </Text>
           </TouchableOpacity>
